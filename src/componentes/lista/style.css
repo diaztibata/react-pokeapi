@@ -1,0 +1,12 @@
+.c-lista{
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.c-lista-pokemon{
+    background-color: aliceblue;
+    width: calc(50% - 5px);
+    padding: 10px;
+    text-align: center;
+}
