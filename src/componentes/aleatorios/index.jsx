@@ -3,10 +3,10 @@ import { useNavigate } from "react-router-dom";
 import { AppContext } from '../../contexto/contexto';
 
 function Aleatorios() {
-  const { data, listaCapturados ,setListaCapturados } = useContext(AppContext);
+  const { data, listaCapturados ,setListaCapturados, setTipoSeleccionado } = useContext(AppContext);
   const [aleatorio, setAleatorio] = useState([])
   
-  
+  setTipoSeleccionado("All")
   useEffect(() => {
     if (data.length > 0) {
       generar();
