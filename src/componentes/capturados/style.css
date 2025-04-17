@@ -1,0 +1,26 @@
+
+.c-unpoke{
+    background-color: #171717;
+    width: calc(25% - 7.5px);
+    height: 85px;
+    padding: 10px;
+    text-align: center;
+    color: rgb(255, 255, 255);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+.c-mios-pokemon{
+    background-color: aliceblue;
+    color: #171717
+}
+
+.c-unpoke img{
+    display: none;
+}
+
+.c-unpoke.c-mios-pokemon img{
+    display: block;
+}

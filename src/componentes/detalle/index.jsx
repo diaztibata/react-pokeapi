@@ -28,7 +28,7 @@ function Detalle() {
 
   if (!datapoke) return <p>Cargando...</p>;
   return (
-    <div>
+    <div >
       <img 
         src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${datapoke.id}.png`} 
         alt={datapoke.name} 
@@ -36,6 +36,9 @@ function Detalle() {
       />
 
         <p>{datapoke.name}</p>
+        {datapoke.types && (
+          <p>Tipo(s): {datapoke.types.map(t => t.type.name).join(', ')}</p>
+        )}
         <p>{datapoke.id}</p>
         <p>Altura: {datapoke.height/ 10} m / Peso: {datapoke.weight/ 10} km</p>
 

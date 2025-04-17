@@ -9,7 +9,6 @@ function Favoritos() {
 
   return (
     <>
-      <h1>Favoritos</h1>
       {favoritos.length === 0 ? (
         <p>No hay Pokémon favoritos aún.</p>
       ) : (
