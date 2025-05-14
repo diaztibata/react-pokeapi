@@ -1,22 +1,51 @@
 import { useEffect, useState } from "react";
-import { supabase } from "../../supabase"; // Asegúrate de importar correctamente tu cliente de Supabase
+import { supabase } from "../../supabase";
+import { useNavigate } from "react-router-dom";
 
 function Administrador() {
     const [usuarios, setUsuarios] = useState([]);
     const [fotos, setFotos] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [usuario, setUsuario] = useState(null);
+    const [accesoPermitido, setAccesoPermitido] = useState(false);
+    const navigate = useNavigate();
 
-
+    // Verificar si el usuario está logueado y es admin
     useEffect(() => {
+        const verificarAcceso = async () => {
+            const { data: { user }, error: userError } = await supabase.auth.getUser();
+
+            if (userError || !user) {
+                navigate("/");
+                return;
+            }
+
+            const { data, error } = await supabase
+                .from("usuario")
+                .select("roll")
+                .eq("id", user.id)
+                .single();
+
+            if (error || !data || data.roll !== "admin") {
+                navigate("/");
+                return;
+            }
+
+            setAccesoPermitido(true);
+        };
+
+        verificarAcceso();
+    }, [navigate]);
+
+    // Obtener datos solo si tiene acceso permitido
+    useEffect(() => {
+        if (!accesoPermitido) return;
+
         const obtenerDatos = async () => {
             try {
-                // Obtener los usuarios
                 const { data: usuariosData, error: usuariosError } = await supabase
                     .from("usuario")
                     .select("id, nombre, correo, roll, telefono");
 
-                // Obtener las fotos
                 const { data: fotosData, error: fotosError } = await supabase
                     .from("multimedia")
                     .select("id, url, usuarioid");
@@ -26,7 +55,6 @@ function Administrador() {
                     return;
                 }
 
-                // Combinar usuarios y fotos
                 const usuariosConFotos = usuariosData.map((usuario) => ({
                     ...usuario,
                     fotos: fotosData.filter((foto) => foto.usuarioid === usuario.id),
@@ -41,7 +69,7 @@ function Administrador() {
         };
 
         obtenerDatos();
-    }, []);
+    }, [accesoPermitido]);
 
     const editarUsuario = async (id, nuevoNombre, nuevoCorreo, nuevoTelefono) => {
         try {
@@ -57,7 +85,6 @@ function Administrador() {
             if (error) {
                 console.error(error);
             } else {
-                // Actualiza los usuarios en el estado para reflejar los cambios
                 setUsuarios((prev) =>
                     prev.map((usuario) =>
                         usuario.id === id
@@ -81,8 +108,13 @@ function Administrador() {
             if (error) {
                 console.error("Error al eliminar la imagen:", error);
             } else {
-                // Elimina la imagen del estado
                 setFotos((prevFotos) => prevFotos.filter((foto) => foto.id !== imagenId));
+                setUsuarios((prevUsuarios) =>
+                    prevUsuarios.map((usuario) => ({
+                        ...usuario,
+                        fotos: usuario.fotos.filter((foto) => foto.id !== imagenId),
+                    }))
+                );
             }
         } catch (error) {
             console.error("Error al eliminar la imagen:", error);
@@ -98,9 +130,8 @@ function Administrador() {
         );
     };
 
-    if (loading) {
-        return <div>Loading...</div>;
-    }
+    if (!accesoPermitido) return null;
+    if (loading) return <div>Cargando...</div>;
 
     return (
         <div className="admin-container">
@@ -127,9 +158,7 @@ function Administrador() {
                                     onChange={(e) => handleChange(e, usuario.id, "nombre")}
                                 />
                             </td>
-                            <td>
-                                {usuario.correo}
-                            </td>
+                            <td>{usuario.correo}</td>
                             <td>
                                 <input
                                     type="tel"
